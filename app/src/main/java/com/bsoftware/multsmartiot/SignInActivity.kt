@@ -4,10 +4,12 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Lock
@@ -58,95 +60,106 @@ fun SignIn(){
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
-    Card(
-
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(10.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
     ) {
-        Column(
+        Card(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 20.dp, end = 20.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Image(
-                painter = painterResource(id = R.drawable.ic_launcher_background),
-                contentDescription = "IconImage",
-                modifier = Modifier.padding(top = 20.dp)
-            )
-           Column(modifier = Modifier
-               .padding(bottom = 20.dp, top = 20.dp)
-               .fillMaxWidth()
-           ) {
-               Text(
-                   text = "Hello",
-                   style = TextStyle(
-                       fontWeight = FontWeight.Bold,
-                       fontSize = 30.sp
-                   )
-               )
-               Text(
-                   text = "Welcome",
-                   style = TextStyle(
-                       fontSize = 25.sp
-                   )
-               )
-           }
-
-            //email outline field
-            OutlinedTextField(
-                value = email,
-                onValueChange = { email = it },
-                modifier = Modifier
-                    .padding(bottom = 10.dp)
-                    .fillMaxWidth(),
-                label = {Text(text = "Enter You Email")},
-                leadingIcon = {
-                    Icon(
-                        Icons.Outlined.MailOutline,
-                        contentDescription = "EmailIcon"
-                    )
-                },
-                shape = RoundedCornerShape(20.dp)
-            )
-
-            //password outline field
-            OutlinedTextField(
-                value = password,
-                onValueChange = { password = it },
-                modifier = Modifier
-                    .fillMaxWidth(),
-                label = { Text(text = "Enter You Password")},
-                leadingIcon = {
-                    Icon(
-                        Icons.Outlined.Lock,
-                        contentDescription = "PasswordIcon"
-                    )
-                },
-                shape = RoundedCornerShape(20.dp)
-            )
-
-            Button(
-                onClick = { /*TODO*/ },
+                .size(500.dp,520.dp),
+            shape = RoundedCornerShape(20.dp)
+        ){
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 20.dp)
+                    .padding(start = 20.dp, end = 20.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(text = "Sign In")
-            }
-
-            Button(
-                onClick = { /*TODO*/ },
-                modifier = Modifier
+                Image(
+                    painter = painterResource(id = R.drawable.ic_launcher_background),
+                    contentDescription = "IconImage",
+                    modifier = Modifier.padding(top = 20.dp)
+                )
+                Column(modifier = Modifier
+                    .padding(bottom = 20.dp, top = 20.dp)
                     .fillMaxWidth()
-                    .padding(top = 5.dp)
-            ) {
-                Text(text = "Sign In With Google")
+                ) {
+                    Text(
+                        text = "Hello",
+                        style = TextStyle(
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 35.sp
+                        )
+                    )
+                    Text(
+                        text = "Welcome",
+                        style = TextStyle(
+                            fontSize = 25.sp
+                        )
+                    )
+                }
+
+                //email outline field
+                OutlinedTextField(
+                    value = email,
+                    onValueChange = { email = it },
+                    modifier = Modifier
+                        .padding(bottom = 10.dp)
+                        .fillMaxWidth(),
+                    label = {Text(text = "Enter You Email")},
+                    leadingIcon = {
+                        Icon(
+                            Icons.Outlined.MailOutline,
+                            contentDescription = "EmailIcon"
+                        )
+                    },
+                    shape = RoundedCornerShape(20.dp)
+                )
+
+                //password outline field
+                OutlinedTextField(
+                    value = password,
+                    onValueChange = { password = it },
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    label = { Text(text = "Enter You Password")},
+                    leadingIcon = {
+                        Icon(
+                            Icons.Outlined.Lock,
+                            contentDescription = "PasswordIcon"
+                        )
+                    },
+                    shape = RoundedCornerShape(20.dp)
+                )
+
+                // button for sign in use email
+                Button(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 20.dp),
+                    onClick = { /*TODO*/ },
+                ) {
+                    Text(text = "Sign In")
+                }
+
+                // button for sign in use google email
+                Button(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 5.dp),
+                    onClick = { /*TODO*/ },
+                ) {
+                    Text(text = "Sign In With Google")
+                }
             }
         }
     }
 }
 
-
-@Preview(showBackground = true)
+@Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun SignInPreview() {
     MultSmartIoTTheme {
