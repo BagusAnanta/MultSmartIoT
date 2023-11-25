@@ -63,13 +63,11 @@ fun SignIn(){
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(10.dp),
+            .padding(20.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
         Card(
-            modifier = Modifier
-                .size(500.dp,520.dp),
             shape = RoundedCornerShape(20.dp)
         ){
             Column(
@@ -79,7 +77,7 @@ fun SignIn(){
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.ic_launcher_background),
+                    painter = painterResource(id = R.drawable.mult_iot),
                     contentDescription = "IconImage",
                     modifier = Modifier.padding(top = 20.dp)
                 )
@@ -145,11 +143,21 @@ fun SignIn(){
                     Text(text = "Sign In")
                 }
 
+                Text(
+                    text = "Or SignIn With",
+                    style = TextStyle(
+                       fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold
+                    ),
+                    modifier = Modifier
+                        .padding(top = 5.dp, bottom = 5.dp)
+                )
+
                 // button for sign in use google email
                 Button(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = 5.dp),
+                        .padding(top = 5.dp, bottom = 20.dp),
                     onClick = { /*TODO*/ },
                 ) {
                     Text(text = "Sign In With Google")

@@ -51,7 +51,7 @@ fun OptionLoginUser(){
     ) {
         // in here have a 1 imageview and 2 button
         Image(
-            painter = painterResource(id = R.drawable.ic_launcher_background),
+            painter = painterResource(id = R.drawable.mult_iot),
             contentDescription = "Icon",
             modifier = Modifier
                 .padding(bottom = 10.dp)
