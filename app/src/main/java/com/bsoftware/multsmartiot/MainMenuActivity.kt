@@ -14,9 +14,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.Face
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -138,6 +140,18 @@ fun MainMenuContent(innerPadding : PaddingValues){
                 )
 
                 Text(
+                    text = "Device Place",
+                    style = TextStyle(
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold
+                    ),
+                    modifier = Modifier.padding(top = 30.dp, start = 20.dp)
+                )
+
+                Spacer(modifier = Modifier.padding(top = 10.dp))
+                OptionDevicePlace()
+
+                Text(
                     text = "Device Shortcut",
                     style = TextStyle(
                         fontSize = 20.sp,
@@ -225,7 +239,7 @@ fun DeviceCard(
                         )
                     )
                     Text(
-                        text = "$data1$data1Icon",
+                        text = if(status) "$data1$data1Icon" else "-",
                         style = TextStyle(
                             fontSize = 30.sp,
 
@@ -242,10 +256,49 @@ fun DeviceCard(
                         )
                     )
                     Text(
-                        text = "$data2$data2Icon",
+                        text = if(status) "$data2$data2Icon" else "-",
                         style = TextStyle(
                             fontSize = 30.sp
                         )
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun OptionDevicePlace(){
+    LazyRow(
+        modifier = Modifier
+            .padding(start = 10.dp, end = 10.dp)
+            .fillMaxWidth(),
+        contentPadding = PaddingValues(5.dp),
+        horizontalArrangement = Arrangement.spacedBy(
+            space = 10.dp
+        )
+    ){
+        items(2){
+            Card(
+                modifier = Modifier.size(100.dp,100.dp),
+                shape = RoundedCornerShape(20.dp),
+                elevation = CardDefaults.cardElevation(
+                    defaultElevation = 6.dp
+                )
+            ) {
+                Column(
+                    verticalArrangement = Arrangement.Center,
+                    modifier = Modifier
+                        .padding(start = 10.dp, end = 10.dp)
+                        .fillMaxSize()
+                ) {
+                    Icon(
+                        Icons.Filled.Face,
+                        contentDescription = "IconImagePlace"
+                    )
+                    Text(
+                        text = "Living Room",
+                        modifier = Modifier.padding(top = 10.dp)
                     )
                 }
             }
