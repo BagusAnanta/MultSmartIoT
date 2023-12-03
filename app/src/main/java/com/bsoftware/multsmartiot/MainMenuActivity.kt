@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -124,20 +125,38 @@ fun MainMenuContent(innerPadding : PaddingValues){
                 modifier = Modifier
                     .fillMaxWidth()
             ) {
-                Text(
-                    text = "Hello $exampleName !",
-                    style = TextStyle(
-                        fontSize = 30.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                )
-                Text(
-                    text = "Manage You Home From You Hand",
-                    style = TextStyle(
-                        fontSize = 15.sp
+
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 10.dp, end = 10.dp)
+                        .height(180.dp),
+                    elevation = CardDefaults.cardElevation(
+                        defaultElevation = 6.dp
                     ),
-                    modifier = Modifier.padding(top = 5.dp)
-                )
+                    shape = RoundedCornerShape(20.dp)
+                ) {
+
+                    Column(
+                        modifier = Modifier
+                            .padding(10.dp)
+                    ){
+                        Text(
+                            text = "Hello $exampleName !",
+                            style = TextStyle(
+                                fontSize = 25.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        )
+                        Text(
+                            text = "Monitoring You Home From You Hand",
+                            style = TextStyle(
+                                fontSize = 15.sp
+                            ),
+                            modifier = Modifier.padding(top = 5.dp)
+                        )
+                    }
+                }
 
                 Text(
                     text = "Device Place",
@@ -174,8 +193,10 @@ fun DeviceCard(
     status : Boolean = true,
     data1Title : String = "Humidity",
     data2Title : String = "Temperature",
+    data3Title : String = "Status",
     data1 : String = "78",
     data2 : String = "22.6",
+    data3 : String = "Normal",
     data1Icon : String = "%",
     data2Icon : String = "°C"
 ){
@@ -234,14 +255,14 @@ fun DeviceCard(
                     Text(
                         text = data1Title,
                         style = TextStyle(
-                            fontSize = 20.sp,
+                            fontSize = 15.sp,
                             fontWeight = FontWeight.SemiBold
                         )
                     )
                     Text(
                         text = if(status) "$data1$data1Icon" else "-",
                         style = TextStyle(
-                            fontSize = 30.sp,
+                            fontSize = 20.sp,
 
                         )
                     )
@@ -251,14 +272,30 @@ fun DeviceCard(
                     Text(
                         text = data2Title,
                         style = TextStyle(
-                            fontSize = 20.sp,
+                            fontSize = 15.sp,
                             fontWeight = FontWeight.SemiBold
                         )
                     )
                     Text(
                         text = if(status) "$data2$data2Icon" else "-",
                         style = TextStyle(
-                            fontSize = 30.sp
+                            fontSize = 20.sp
+                        )
+                    )
+                }
+
+                Column(modifier = Modifier.padding(start = 20.dp)){
+                    Text(
+                        text = data3Title,
+                        style = TextStyle(
+                            fontSize = 15.sp,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    )
+                    Text(
+                        text = data3,
+                        style = TextStyle(
+                            fontSize = 20.sp
                         )
                     )
                 }
