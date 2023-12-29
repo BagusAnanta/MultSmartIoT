@@ -34,6 +34,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -44,7 +48,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.bsoftware.multsmartiot.firebase.FirebaseRealtimeDatabase
 import com.bsoftware.multsmartiot.ui.theme.MultSmartIoTTheme
+import com.google.firebase.database.FirebaseDatabase
 
 class MainMenuActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -113,6 +119,22 @@ fun MainMenu(){
 @Composable
 fun MainMenuContent(innerPadding : PaddingValues){
     val exampleName = "Bagus"
+    val firebase = FirebaseDatabase.getInstance()
+    val reference = firebase.getReference("Humtemp")
+
+    FirebaseRealtimeDatabase().initDatabase()
+    val getDataFirebase = FirebaseRealtimeDatabase().getHumTempDataList(databasePref = reference)
+
+    var humidity by remember{ mutableStateOf("0") }
+    var temperature by remember { mutableStateOf("0.00") }
+    var status by remember { mutableStateOf(false) }
+
+    // for each loop in here
+    getDataFirebase.forEach {
+        humidity = it.humidity
+        temperature = it.temperature
+        status = it.status
+    }
 
     LazyColumn(
         contentPadding = innerPadding,
@@ -180,7 +202,9 @@ fun MainMenuContent(innerPadding : PaddingValues){
                 )
 
                 Spacer(modifier = Modifier.padding(top = 10.dp))
-                DeviceCard()
+                DeviceCard(
+                    ""
+                )
             }
         }
     }

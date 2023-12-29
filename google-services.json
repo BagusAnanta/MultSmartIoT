@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "759863558789",
+    "firebase_url": "https://multsmartiot-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "multsmartiot",
+    "storage_bucket": "multsmartiot.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:759863558789:android:3f0a61885903291c0f9fec",
+        "android_client_info": {
+          "package_name": "com.bsoftware.multsmartiot"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCHn3QTK5HuJ3Pz4MmCw3Zvn9W8FZ5Ef2o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
