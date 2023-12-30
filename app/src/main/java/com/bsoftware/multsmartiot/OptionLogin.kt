@@ -1,5 +1,8 @@
 package com.bsoftware.multsmartiot
 
+import android.app.Activity
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -18,6 +21,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -33,7 +37,7 @@ class OptionLogin : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-
+                    OptionLoginUser()
                 }
             }
         }
@@ -42,6 +46,9 @@ class OptionLogin : ComponentActivity() {
 
 @Composable
 fun OptionLoginUser(){
+    val context : Context = LocalContext.current
+    val activity : Activity = (LocalContext.current as Activity)
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
@@ -60,7 +67,11 @@ fun OptionLoginUser(){
 
         Column{
             Button(
-                onClick = { /*TODO*/ },
+                onClick = {
+                    // intent into SignInActivity
+                          context.startActivity(Intent(context,SignInActivity::class.java))
+                          activity.finish()
+                },
                 shape = RoundedCornerShape(20.dp),
                 modifier = Modifier
                     .fillMaxWidth()
@@ -70,7 +81,10 @@ fun OptionLoginUser(){
                 Text(text = "Sign In")
             }
             Button(
-                onClick = { /*TODO*/ },
+                onClick = {
+                          context.startActivity(Intent(context,SignUpActivity::class.java))
+                          activity.finish()
+                },
                 shape = RoundedCornerShape(20.dp),
                 modifier = Modifier
                     .fillMaxWidth()

@@ -1,6 +1,10 @@
 package com.bsoftware.multsmartiot
 
+import android.app.Activity
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
@@ -29,6 +33,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -47,7 +52,7 @@ class SignInActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    // Greeting("Android")
+                    SignIn()
                 }
             }
         }
@@ -59,6 +64,9 @@ class SignInActivity : ComponentActivity() {
 fun SignIn(){
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+
+    val context : Context = LocalContext.current
+    val activity : Activity = (LocalContext.current as Activity)
 
     Column(
         modifier = Modifier
@@ -138,7 +146,13 @@ fun SignIn(){
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = 20.dp),
-                    onClick = { /*TODO*/ },
+                    onClick = {
+                         if(email == "bagusananta@mult.com" && password == "4dM1nMulT"){
+                             context.startActivity(Intent(context,MainMenuActivity::class.java))
+                             activity.finish()
+                             Toast.makeText(context,"Developer Mode, Welcome :D",Toast.LENGTH_SHORT).show()
+                         }
+                    },
                 ) {
                     Text(text = "Sign In")
                 }

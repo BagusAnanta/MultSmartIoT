@@ -1,6 +1,7 @@
 package com.bsoftware.multsmartiot
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
@@ -38,6 +39,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -48,6 +50,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.bsoftware.multsmartiot.dataclass.HumTempDataClass
 import com.bsoftware.multsmartiot.firebase.FirebaseRealtimeDatabase
 import com.bsoftware.multsmartiot.ui.theme.MultSmartIoTTheme
 import com.google.firebase.database.FirebaseDatabase
@@ -62,7 +65,7 @@ class MainMenuActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    //Greeting("Android")
+                    MainMenu()
                 }
             }
         }
@@ -119,21 +122,20 @@ fun MainMenu(){
 @Composable
 fun MainMenuContent(innerPadding : PaddingValues){
     val exampleName = "Bagus"
-    val firebase = FirebaseDatabase.getInstance()
-    val reference = firebase.getReference("Humtemp")
+    val firebaseDatabase = FirebaseDatabase.getInstance()
+    val databaseReference = firebaseDatabase.getReference("Humtemp")
 
-    FirebaseRealtimeDatabase().initDatabase()
-    val getDataFirebase = FirebaseRealtimeDatabase().getHumTempDataList(databasePref = reference)
-
-    var humidity by remember{ mutableStateOf("0") }
-    var temperature by remember { mutableStateOf("0.00") }
+    var humidity by remember{ mutableStateOf("") }
+    var temperature by remember { mutableStateOf("") }
     var status by remember { mutableStateOf(false) }
-
-    // for each loop in here
-    getDataFirebase.forEach {
-        humidity = it.humidity
-        temperature = it.temperature
-        status = it.status
+    
+    FirebaseRealtimeDatabase().let {
+        it.initDatabase()
+        it.getHumTempDataList(databasePref = databaseReference).forEach {
+            humidity = it.humidity.toString()
+            temperature = it.temperature.toString()
+            status = it.status
+        }
     }
 
     LazyColumn(
@@ -202,8 +204,13 @@ fun MainMenuContent(innerPadding : PaddingValues){
                 )
 
                 Spacer(modifier = Modifier.padding(top = 10.dp))
+
                 DeviceCard(
-                    ""
+                    deviceName = "Bagus Device",
+                    location = "Bedroom",
+                    status = status,
+                    data1 = humidity,
+                    data2 = temperature
                 )
             }
         }
@@ -372,6 +379,6 @@ fun OptionDevicePlace(){
 @Composable
 fun MainMenuPreview() {
     MultSmartIoTTheme {
-        MainMenu()
+        // MainMenu()
     }
 }
