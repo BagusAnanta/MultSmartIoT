@@ -15,7 +15,6 @@ class FirebaseAuthentication {
     }
 
     fun createDataUser(
-        username : String,
         email : String,
         password : String,
         onSuccess : () -> Unit = {},
@@ -51,5 +50,13 @@ class FirebaseAuthentication {
                     onFailed()
                 }
             }
+    }
+
+    fun getUsernameFromEmail() : String?{
+        return auth.currentUser?.displayName
+    }
+
+    fun getEmail() : String?{
+        return auth.currentUser?.email
     }
 }

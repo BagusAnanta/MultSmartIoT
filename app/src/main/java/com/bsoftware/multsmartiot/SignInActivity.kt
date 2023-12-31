@@ -15,6 +15,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.MailOutline
@@ -34,13 +36,23 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.bsoftware.multsmartiot.dataclass.UserLoginDataClass
+import com.bsoftware.multsmartiot.datastore.UserLoginDataStore
+import com.bsoftware.multsmartiot.firebase.FirebaseAuthentication
 import com.bsoftware.multsmartiot.ui.theme.MultSmartIoTTheme
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class SignInActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -64,9 +76,12 @@ class SignInActivity : ComponentActivity() {
 fun SignIn(){
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    val focusManager = LocalFocusManager.current
 
     val context : Context = LocalContext.current
     val activity : Activity = (LocalContext.current as Activity)
+
+    val storeLogin = UserLoginDataStore(context)
 
     Column(
         modifier = Modifier
@@ -87,10 +102,12 @@ fun SignIn(){
                 Image(
                     painter = painterResource(id = R.drawable.mult_iot),
                     contentDescription = "IconImage",
-                    modifier = Modifier.padding(top = 20.dp)
+                    modifier = Modifier
+                        .padding(top = 20.dp)
+                        .size(130.dp,130.dp)
                 )
                 Column(modifier = Modifier
-                    .padding(bottom = 20.dp, top = 20.dp)
+                    .padding(bottom = 20.dp, top = 10.dp)
                     .fillMaxWidth()
                 ) {
                     Text(
@@ -122,7 +139,11 @@ fun SignIn(){
                             contentDescription = "EmailIcon"
                         )
                     },
-                    shape = RoundedCornerShape(20.dp)
+                    shape = RoundedCornerShape(20.dp),
+                    keyboardOptions = KeyboardOptions.Default.copy(
+                        keyboardType = KeyboardType.Email,
+                        imeAction = ImeAction.Next
+                    )
                 )
 
                 //password outline field
@@ -138,7 +159,15 @@ fun SignIn(){
                             contentDescription = "PasswordIcon"
                         )
                     },
-                    shape = RoundedCornerShape(20.dp)
+                    shape = RoundedCornerShape(20.dp),
+                    keyboardOptions = KeyboardOptions.Default.copy(
+                        keyboardType = KeyboardType.Password,
+                        imeAction = ImeAction.Done
+                    ),
+                    keyboardActions = KeyboardActions(
+                        onDone = {focusManager.clearFocus()}
+                    ),
+                    visualTransformation = PasswordVisualTransformation()
                 )
 
                 // button for sign in use email
@@ -148,9 +177,43 @@ fun SignIn(){
                         .padding(top = 20.dp),
                     onClick = {
                          if(email == "bagusananta@mult.com" && password == "4dM1nMulT"){
+                             // intent in here and save a data in datastore
                              context.startActivity(Intent(context,MainMenuActivity::class.java))
                              activity.finish()
                              Toast.makeText(context,"Developer Mode, Welcome :D",Toast.LENGTH_SHORT).show()
+
+                             // save a data and status for developer option
+                             CoroutineScope(Dispatchers.IO).launch {
+                                 storeLogin.storeUserData(UserLoginDataClass("bagusananta@mult.com","4dM1nMulT"))
+                                 // and then save a status
+                                 storeLogin.storeStatus(true)
+                             }
+                         } else if(email != "bagusananta@mult.com" && password != "4dM1nMulT"){
+                             // sign in using firebase
+                             FirebaseAuthentication().apply {
+                                 initFirebaseAuth()
+                                 signInDataUser(
+                                     email = email,
+                                     password = password,
+                                     onSuccess = {
+                                         // intent into mainActivity
+                                         context.startActivity(Intent(context,MainMenuActivity::class.java))
+                                         activity.finish()
+
+                                         // set a status
+                                         CoroutineScope(Dispatchers.IO).launch {
+                                             storeLogin.storeStatus(true)
+                                         }
+                                     },
+                                     onFailed = {
+                                         // if a password or username fail
+                                         Toast.makeText(context,"You Username or Password Incorrect, please try again", Toast.LENGTH_SHORT).show()
+                                     },
+                                     activity = activity
+                                 )
+                             }
+                         } else {
+                             Toast.makeText(context,"You Username or Password Incorrect, please try again", Toast.LENGTH_SHORT).show()
                          }
                     },
                 ) {

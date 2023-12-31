@@ -19,12 +19,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.bsoftware.multsmartiot.datastore.UserLoginDataStore
 import com.bsoftware.multsmartiot.ui.theme.MultSmartIoTTheme
 
 class OptionLogin : ComponentActivity() {
@@ -37,7 +39,18 @@ class OptionLogin : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    OptionLoginUser()
+                    val context : Context = LocalContext.current
+                    val activity : Activity = (LocalContext.current as Activity)
+                    val getStatus = UserLoginDataStore(context).getStatus.collectAsState(initial = false)
+
+                    if(getStatus.value){
+                        // if a status true into mainactivity
+                        context.startActivity(Intent(context,MainMenuActivity::class.java))
+                        activity.finish()
+                    } else {
+                        // else into option login
+                        OptionLoginUser()
+                    }
                 }
             }
         }
@@ -62,7 +75,7 @@ fun OptionLoginUser(){
             contentDescription = "Icon",
             modifier = Modifier
                 .padding(bottom = 10.dp)
-                .fillMaxWidth()
+                .size(130.dp, 130.dp)
         )
 
         Column{

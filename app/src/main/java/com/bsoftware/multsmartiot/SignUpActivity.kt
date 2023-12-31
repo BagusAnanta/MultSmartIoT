@@ -1,6 +1,10 @@
 package com.bsoftware.multsmartiot
 
+import android.app.Activity
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
@@ -9,7 +13,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.MailOutline
@@ -29,13 +36,25 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.bsoftware.multsmartiot.dataclass.UserLoginDataClass
+import com.bsoftware.multsmartiot.datastore.UserLoginDataStore
+import com.bsoftware.multsmartiot.firebase.FirebaseAuthentication
 import com.bsoftware.multsmartiot.ui.theme.MultSmartIoTTheme
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class SignUpActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -47,7 +66,7 @@ class SignUpActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    // Greeting("Android")
+                    SignUp()
                 }
             }
         }
@@ -57,9 +76,14 @@ class SignUpActivity : ComponentActivity() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SignUp(){
-    var username by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    val focusManager = LocalFocusManager.current
+
+    val context : Context = LocalContext.current
+    val activity : Activity = (LocalContext.current as Activity)
+
+    val storeLogin = UserLoginDataStore(context)
 
     Column(
         modifier = Modifier
@@ -74,19 +98,21 @@ fun SignUp(){
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = 20.dp,end = 20.dp),
+                    .padding(start = 20.dp, end = 20.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.mult_iot) ,
                     contentDescription = "IconImage",
-                    modifier = Modifier.padding(top = 20.dp)
+                    modifier = Modifier
+                        .padding(top = 20.dp)
+                        .size(130.dp, 130.dp)
                 )
                 
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = 20.dp, bottom = 20.dp)
+                        .padding(top = 10.dp, bottom = 20.dp)
                 ) {
                     Text(
                         text = "Hi There !",
@@ -103,23 +129,6 @@ fun SignUp(){
                     )
                 }
 
-                //username outline field
-                OutlinedTextField(
-                    value = username,
-                    onValueChange = { username = it },
-                    modifier = Modifier
-                        .padding(bottom = 10.dp)
-                        .fillMaxWidth(),
-                    label = {Text(text = "Enter You New Username")},
-                    leadingIcon = {
-                        Icon(
-                            Icons.Outlined.Person,
-                            contentDescription = "PersonIcon"
-                        )
-                    },
-                    shape = RoundedCornerShape(20.dp)
-                )
-
                 //email outline field
                 OutlinedTextField(
                     value = email,
@@ -134,7 +143,11 @@ fun SignUp(){
                             contentDescription = "EmailIcon"
                         )
                     },
-                    shape = RoundedCornerShape(20.dp)
+                    shape = RoundedCornerShape(20.dp),
+                    keyboardOptions = KeyboardOptions.Default.copy(
+                        keyboardType = KeyboardType.Email,
+                        imeAction = ImeAction.Next
+                    )
                 )
 
                 //password outline field
@@ -150,7 +163,15 @@ fun SignUp(){
                             contentDescription = "PasswordIcon"
                         )
                     },
-                    shape = RoundedCornerShape(20.dp)
+                    shape = RoundedCornerShape(20.dp),
+                    keyboardOptions = KeyboardOptions.Default.copy(
+                        keyboardType = KeyboardType.Password,
+                        imeAction = ImeAction.Done
+                    ),
+                    keyboardActions = KeyboardActions(
+                        onDone = {focusManager.clearFocus()}
+                    ),
+                    visualTransformation = PasswordVisualTransformation()
                 )
 
                 // button for sign in use email
@@ -158,9 +179,36 @@ fun SignUp(){
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = 20.dp),
-                    onClick = { /*TODO*/ },
+                    onClick = {
+                       FirebaseAuthentication().apply {
+                           initFirebaseAuth()
+                           createDataUser(
+                               email = email,
+                               password = password,
+                               onSuccess = {
+                                   // intent at here and save a data store in here
+                                   context.startActivity(Intent(context,MainMenuActivity::class.java))
+                                   activity.finish()
+
+                                   // save into datastore
+                                   CoroutineScope(Dispatchers.IO).launch {
+                                       // store a data
+                                       storeLogin.storeUserData(UserLoginDataClass(email, password))
+                                       storeLogin.storeStatus(true)
+                                   }
+
+
+                               },
+                               onFailed = {
+                                   // message at here
+                                   Log.e("SignUpActivity() Error At :", "Error a SignUpActivity")
+                               },
+                               activity = activity
+                           )
+                       }
+                    },
                 ) {
-                    Text(text = "Sign In")
+                    Text(text = "Sign Up")
                 }
 
                 Text(
