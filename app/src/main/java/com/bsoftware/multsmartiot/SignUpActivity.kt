@@ -52,6 +52,7 @@ import com.bsoftware.multsmartiot.datastore.UserLoginDataStore
 import com.bsoftware.multsmartiot.firebase.FirebaseAuthentication
 import com.bsoftware.multsmartiot.ui.theme.MultSmartIoTTheme
 import androidx.lifecycle.lifecycleScope
+import com.bsoftware.multsmartiot.sharepref.StatusSharePreference
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -84,6 +85,7 @@ fun SignUp(){
     val activity : Activity = (LocalContext.current as Activity)
 
     val storeLogin = UserLoginDataStore(context)
+    val statusSharePref = StatusSharePreference(activity)
 
     Column(
         modifier = Modifier
@@ -178,7 +180,7 @@ fun SignUp(){
                 Button(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = 20.dp),
+                        .padding(top = 20.dp, bottom = 30.dp),
                     onClick = {
                        FirebaseAuthentication().apply {
                            initFirebaseAuth()
@@ -194,10 +196,9 @@ fun SignUp(){
                                    CoroutineScope(Dispatchers.IO).launch {
                                        // store a data
                                        storeLogin.storeUserData(UserLoginDataClass(email, password))
-                                       storeLogin.storeStatus(true)
                                    }
 
-
+                                   statusSharePref.setStatus(true)
                                },
                                onFailed = {
                                    // message at here
@@ -209,26 +210,6 @@ fun SignUp(){
                     },
                 ) {
                     Text(text = "Sign Up")
-                }
-
-                Text(
-                    text = "Or SignUp With",
-                    style = TextStyle(
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Bold
-                    ),
-                    modifier = Modifier
-                        .padding(top = 5.dp, bottom = 5.dp)
-                )
-
-                // button for sign in use google email
-                Button(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 5.dp, bottom = 20.dp),
-                    onClick = { /*TODO*/ },
-                ) {
-                    Text(text = "Sign Up With Google")
                 }
             }
         }

@@ -13,7 +13,12 @@
           "package_name": "com.bsoftware.multsmartiot"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "759863558789-hoedfik2c3ps5aea8b903amvp1mvk2js.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyCHn3QTK5HuJ3Pz4MmCw3Zvn9W8FZ5Ef2o"
@@ -21,7 +26,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "759863558789-hoedfik2c3ps5aea8b903amvp1mvk2js.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

@@ -18,7 +18,6 @@ class UserLoginDataStore(private val context : Context) {
         private val Context.userLoginStore  : DataStore<Preferences> by preferencesDataStore(name = PREF_LOGIN_NAME)
         private val USER_EMAIL = stringPreferencesKey("user_email")
         private val USER_PASSWORD = stringPreferencesKey("user_password")
-        private val USER_STATUS = booleanPreferencesKey("user_status")
     }
 
     suspend fun storeUserData(loginDataClass : UserLoginDataClass){
@@ -26,16 +25,6 @@ class UserLoginDataStore(private val context : Context) {
             preference[USER_EMAIL] = loginDataClass.email.toString()
             preference[USER_PASSWORD] = loginDataClass.password.toString()
         }
-    }
-
-    suspend fun storeStatus(status : Boolean){
-        context.userLoginStore.edit { preference ->
-            preference[USER_STATUS] = status
-        }
-    }
-
-    val getStatus : Flow<Boolean> = context.userLoginStore.data.map { preference ->
-        preference[USER_STATUS] ?: false
     }
 
    val getUserDataLoginFlow : Flow<UserLoginDataClass> = context.userLoginStore.data.map { preference ->

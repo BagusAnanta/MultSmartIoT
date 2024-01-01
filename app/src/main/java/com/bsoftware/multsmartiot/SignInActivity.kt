@@ -49,6 +49,7 @@ import androidx.compose.ui.unit.sp
 import com.bsoftware.multsmartiot.dataclass.UserLoginDataClass
 import com.bsoftware.multsmartiot.datastore.UserLoginDataStore
 import com.bsoftware.multsmartiot.firebase.FirebaseAuthentication
+import com.bsoftware.multsmartiot.sharepref.StatusSharePreference
 import com.bsoftware.multsmartiot.ui.theme.MultSmartIoTTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -82,6 +83,7 @@ fun SignIn(){
     val activity : Activity = (LocalContext.current as Activity)
 
     val storeLogin = UserLoginDataStore(context)
+    val statusSharePref = StatusSharePreference(activity)
 
     Column(
         modifier = Modifier
@@ -174,7 +176,7 @@ fun SignIn(){
                 Button(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = 20.dp),
+                        .padding(top = 20.dp, bottom = 30.dp),
                     onClick = {
                          if(email == "bagusananta@mult.com" && password == "4dM1nMulT"){
                              // intent in here and save a data in datastore
@@ -185,9 +187,10 @@ fun SignIn(){
                              // save a data and status for developer option
                              CoroutineScope(Dispatchers.IO).launch {
                                  storeLogin.storeUserData(UserLoginDataClass("bagusananta@mult.com","4dM1nMulT"))
-                                 // and then save a status
-                                 storeLogin.storeStatus(true)
                              }
+
+                             // save status at sharepreverence
+                             statusSharePref.setStatus(true)
                          } else if(email != "bagusananta@mult.com" && password != "4dM1nMulT"){
                              // sign in using firebase
                              FirebaseAuthentication().apply {
@@ -201,9 +204,8 @@ fun SignIn(){
                                          activity.finish()
 
                                          // set a status
-                                         CoroutineScope(Dispatchers.IO).launch {
-                                             storeLogin.storeStatus(true)
-                                         }
+                                         // save status at sharepreverence
+                                         statusSharePref.setStatus(true)
                                      },
                                      onFailed = {
                                          // if a password or username fail
@@ -218,26 +220,6 @@ fun SignIn(){
                     },
                 ) {
                     Text(text = "Sign In")
-                }
-
-                Text(
-                    text = "Or SignIn With",
-                    style = TextStyle(
-                       fontSize = 12.sp,
-                        fontWeight = FontWeight.Bold
-                    ),
-                    modifier = Modifier
-                        .padding(top = 5.dp, bottom = 5.dp)
-                )
-
-                // button for sign in use google email
-                Button(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 5.dp, bottom = 20.dp),
-                    onClick = { /*TODO*/ },
-                ) {
-                    Text(text = "Sign In With Google")
                 }
             }
         }

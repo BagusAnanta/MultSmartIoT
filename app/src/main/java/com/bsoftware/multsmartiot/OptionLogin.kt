@@ -26,7 +26,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.lifecycleScope
 import com.bsoftware.multsmartiot.datastore.UserLoginDataStore
+import com.bsoftware.multsmartiot.sharepref.StatusSharePreference
 import com.bsoftware.multsmartiot.ui.theme.MultSmartIoTTheme
 
 class OptionLogin : ComponentActivity() {
@@ -41,14 +43,13 @@ class OptionLogin : ComponentActivity() {
                 ) {
                     val context : Context = LocalContext.current
                     val activity : Activity = (LocalContext.current as Activity)
-                    val getStatus = UserLoginDataStore(context).getStatus.collectAsState(initial = false)
+                    val statusSharePref = StatusSharePreference(activity)
 
-                    if(getStatus.value){
+                    if(statusSharePref.getStatus()){
                         // if a status true into mainactivity
                         context.startActivity(Intent(context,MainMenuActivity::class.java))
                         activity.finish()
                     } else {
-                        // else into option login
                         OptionLoginUser()
                     }
                 }
@@ -83,7 +84,6 @@ fun OptionLoginUser(){
                 onClick = {
                     // intent into SignInActivity
                           context.startActivity(Intent(context,SignInActivity::class.java))
-                          activity.finish()
                 },
                 shape = RoundedCornerShape(20.dp),
                 modifier = Modifier
@@ -96,7 +96,6 @@ fun OptionLoginUser(){
             Button(
                 onClick = {
                           context.startActivity(Intent(context,SignUpActivity::class.java))
-                          activity.finish()
                 },
                 shape = RoundedCornerShape(20.dp),
                 modifier = Modifier
