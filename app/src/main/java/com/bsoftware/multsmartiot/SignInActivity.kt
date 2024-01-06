@@ -8,6 +8,7 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -85,6 +86,8 @@ fun SignIn(){
     val storeLogin = UserLoginDataStore(context)
     val statusSharePref = StatusSharePreference(activity)
 
+    val isSystemThemeDark = isSystemInDarkTheme()
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -102,11 +105,11 @@ fun SignIn(){
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.mult_iot),
+                    painter = if(isSystemThemeDark) painterResource(id = R.drawable.mult_icon_white) else painterResource(id = R.drawable.mult_icon_black),
                     contentDescription = "IconImage",
                     modifier = Modifier
                         .padding(top = 20.dp)
-                        .size(130.dp,130.dp)
+                        .size(110.dp, 110.dp)
                 )
                 Column(modifier = Modifier
                     .padding(bottom = 20.dp, top = 10.dp)

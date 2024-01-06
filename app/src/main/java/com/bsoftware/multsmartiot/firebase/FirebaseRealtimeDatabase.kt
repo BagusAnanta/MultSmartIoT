@@ -36,6 +36,7 @@ class FirebaseRealtimeDatabase {
                     Log.d("DataHumidity",dataHumTemp?.humidity.toString())
                     Log.d("DataTemperature", dataHumTemp?.temperature.toString())
                     Log.d("DataStatus", dataHumTemp?.status.toString())
+                    Log.d("DataOutput", dataHumTemp?.output.toString())
                     dataList.add(dataHumTemp!!)
                 }
 

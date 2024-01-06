@@ -1,10 +1,10 @@
 package com.bsoftware.multsmartiot
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -20,7 +19,6 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
-import androidx.compose.material.icons.filled.Face
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -39,10 +37,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -50,7 +46,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.bsoftware.multsmartiot.dataclass.HumTempDataClass
 import com.bsoftware.multsmartiot.firebase.FirebaseRealtimeDatabase
 import com.bsoftware.multsmartiot.ui.theme.MultSmartIoTTheme
 import com.google.firebase.database.FirebaseDatabase
@@ -76,6 +71,7 @@ class MainMenuActivity : ComponentActivity() {
 @Composable
 fun MainMenu(){
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
+    val isSystemThemeDark = isSystemInDarkTheme()
 
     Scaffold(
         modifier = Modifier
@@ -85,7 +81,7 @@ fun MainMenu(){
             CenterAlignedTopAppBar(
                 title = {
                     Image(
-                        painter = painterResource(id = R.drawable.mult_iot),
+                        painter = if(isSystemThemeDark) painterResource(id = R.drawable.mult_iot_white) else painterResource(id = R.drawable.mult_iot),
                         contentDescription = "ProductIcon",
                         modifier = Modifier
                             .size(85.dp,85.dp)
@@ -128,13 +124,15 @@ fun MainMenuContent(innerPadding : PaddingValues){
     var humidity by remember{ mutableStateOf("") }
     var temperature by remember { mutableStateOf("") }
     var status by remember { mutableStateOf(false) }
+    var outputStatus by remember { mutableStateOf("") }
     
     FirebaseRealtimeDatabase().let {
         it.initDatabase()
-        it.getHumTempDataList(databasePref = databaseReference).forEach {
-            humidity = it.humidity.toString()
-            temperature = it.temperature.toString()
-            status = it.status
+        it.getHumTempDataList(databasePref = databaseReference).forEach { getData ->
+            humidity = getData.humidity.toString()
+            temperature = getData.temperature.toString()
+            status = getData.status
+            outputStatus = getData.output
         }
     }
 
@@ -150,36 +148,25 @@ fun MainMenuContent(innerPadding : PaddingValues){
                     .fillMaxWidth()
             ) {
 
-                Card(
+                Column(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 10.dp, end = 10.dp)
-                        .height(180.dp),
-                    elevation = CardDefaults.cardElevation(
-                        defaultElevation = 6.dp
-                    ),
-                    shape = RoundedCornerShape(20.dp)
-                ) {
-
-                    Column(
-                        modifier = Modifier
-                            .padding(10.dp)
-                    ){
-                        Text(
-                            text = "Hello $exampleName !",
-                            style = TextStyle(
-                                fontSize = 25.sp,
-                                fontWeight = FontWeight.Bold
-                            )
+                        .padding(10.dp)
+                ){
+                    Text(
+                        text = "Welcome \n" +
+                                "Home, $exampleName !",
+                        style = TextStyle(
+                            fontSize = 25.sp,
+                            fontWeight = FontWeight.Bold
                         )
-                        Text(
-                            text = "Monitoring You Home From You Hand",
-                            style = TextStyle(
-                                fontSize = 15.sp
-                            ),
-                            modifier = Modifier.padding(top = 5.dp)
-                        )
-                    }
+                    )
+                    Text(
+                        text = "Monitoring You Home From You Hand",
+                        style = TextStyle(
+                            fontSize = 15.sp
+                        ),
+                        modifier = Modifier.padding(top = 5.dp)
+                    )
                 }
 
                 Text(
@@ -188,7 +175,7 @@ fun MainMenuContent(innerPadding : PaddingValues){
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold
                     ),
-                    modifier = Modifier.padding(top = 30.dp, start = 20.dp)
+                    modifier = Modifier.padding(top = 20.dp, start = 20.dp)
                 )
 
                 Spacer(modifier = Modifier.padding(top = 10.dp))
@@ -210,7 +197,8 @@ fun MainMenuContent(innerPadding : PaddingValues){
                     location = "Bedroom",
                     status = status,
                     data1 = humidity,
-                    data2 = temperature
+                    data2 = temperature,
+                    data3 = outputStatus
                 )
             }
         }
@@ -346,7 +334,7 @@ fun OptionDevicePlace(){
             space = 10.dp
         )
     ){
-        items(2){
+        items(2){ index ->
             Card(
                 modifier = Modifier.size(100.dp,100.dp),
                 shape = RoundedCornerShape(20.dp),
@@ -360,14 +348,31 @@ fun OptionDevicePlace(){
                         .padding(start = 10.dp, end = 10.dp)
                         .fillMaxSize()
                 ) {
-                    Icon(
-                        Icons.Filled.Face,
-                        contentDescription = "IconImagePlace"
-                    )
-                    Text(
-                        text = "Living Room",
-                        modifier = Modifier.padding(top = 10.dp)
-                    )
+                   when(index){
+                       0 -> {
+                           Icon(
+                               painter = painterResource(id = R.drawable.bedroom_icon),
+                               contentDescription = "bedroom Icon",
+                               modifier = Modifier.size(25.dp,25.dp)
+                           )
+                           Text(
+                               text = "Bed Room",
+                               modifier = Modifier.padding(top = 10.dp)
+                           )
+                       }
+
+                       1 -> {
+                           Icon(
+                               painter = painterResource(id = R.drawable.livingroom_icon),
+                               contentDescription = "livingroom Icon",
+                               modifier = Modifier.size(25.dp,25.dp)
+                           )
+                           Text(
+                               text = "Living Room",
+                               modifier = Modifier.padding(top = 10.dp)
+                           )
+                       }
+                   }
                 }
             }
         }
