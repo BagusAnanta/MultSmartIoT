@@ -1,5 +1,6 @@
 package com.bsoftware.multsmartiot
 
+import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -40,6 +41,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -48,6 +50,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bsoftware.multsmartiot.firebase.FirebaseRealtimeDatabase
 import com.bsoftware.multsmartiot.ui.theme.MultSmartIoTTheme
+import com.google.firebase.FirebaseApp
 import com.google.firebase.database.FirebaseDatabase
 
 class MainMenuActivity : ComponentActivity() {
@@ -117,16 +120,18 @@ fun MainMenu(){
 
 @Composable
 fun MainMenuContent(innerPadding : PaddingValues){
+    val context : Context = LocalContext.current
     val exampleName = "Bagus"
+    /*FirebaseApp.initializeApp(context)
     val firebaseDatabase = FirebaseDatabase.getInstance()
-    val databaseReference = firebaseDatabase.getReference("Humtemp")
+    val databaseReference = firebaseDatabase.getReference("Humtemp")*/
 
     var humidity by remember{ mutableStateOf("") }
     var temperature by remember { mutableStateOf("") }
     var status by remember { mutableStateOf(false) }
     var outputStatus by remember { mutableStateOf("") }
     
-    FirebaseRealtimeDatabase().let {
+    /*FirebaseRealtimeDatabase().let {
         it.initDatabase()
         it.getHumTempDataList(databasePref = databaseReference).forEach { getData ->
             humidity = getData.humidity.toString()
@@ -134,7 +139,7 @@ fun MainMenuContent(innerPadding : PaddingValues){
             status = getData.status
             outputStatus = getData.output
         }
-    }
+    }*/
 
     LazyColumn(
         contentPadding = innerPadding,
@@ -168,18 +173,6 @@ fun MainMenuContent(innerPadding : PaddingValues){
                         modifier = Modifier.padding(top = 5.dp)
                     )
                 }
-
-                Text(
-                    text = "Device Place",
-                    style = TextStyle(
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold
-                    ),
-                    modifier = Modifier.padding(top = 20.dp, start = 20.dp)
-                )
-
-                Spacer(modifier = Modifier.padding(top = 10.dp))
-                OptionDevicePlace()
 
                 Text(
                     text = "Device Shortcut",
@@ -323,67 +316,13 @@ fun DeviceCard(
     }
 }
 
-@Composable
-fun OptionDevicePlace(){
-    LazyRow(
-        modifier = Modifier
-            .padding(start = 10.dp, end = 10.dp)
-            .fillMaxWidth(),
-        contentPadding = PaddingValues(5.dp),
-        horizontalArrangement = Arrangement.spacedBy(
-            space = 10.dp
-        )
-    ){
-        items(2){ index ->
-            Card(
-                modifier = Modifier.size(100.dp,100.dp),
-                shape = RoundedCornerShape(20.dp),
-                elevation = CardDefaults.cardElevation(
-                    defaultElevation = 6.dp
-                )
-            ) {
-                Column(
-                    verticalArrangement = Arrangement.Center,
-                    modifier = Modifier
-                        .padding(start = 10.dp, end = 10.dp)
-                        .fillMaxSize()
-                ) {
-                   when(index){
-                       0 -> {
-                           Icon(
-                               painter = painterResource(id = R.drawable.bedroom_icon),
-                               contentDescription = "bedroom Icon",
-                               modifier = Modifier.size(25.dp,25.dp)
-                           )
-                           Text(
-                               text = "Bed Room",
-                               modifier = Modifier.padding(top = 10.dp)
-                           )
-                       }
 
-                       1 -> {
-                           Icon(
-                               painter = painterResource(id = R.drawable.livingroom_icon),
-                               contentDescription = "livingroom Icon",
-                               modifier = Modifier.size(25.dp,25.dp)
-                           )
-                           Text(
-                               text = "Living Room",
-                               modifier = Modifier.padding(top = 10.dp)
-                           )
-                       }
-                   }
-                }
-            }
-        }
-    }
-}
 
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun MainMenuPreview() {
     MultSmartIoTTheme {
-        // MainMenu()
+        MainMenu()
     }
 }
