@@ -4,17 +4,24 @@ import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -40,6 +47,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -78,8 +86,7 @@ fun MainMenu(){
 
     Scaffold(
         modifier = Modifier
-            .nestedScroll(scrollBehavior.nestedScrollConnection)
-            .padding(top = 5.dp),
+            .nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             CenterAlignedTopAppBar(
                 title = {
@@ -122,16 +129,16 @@ fun MainMenu(){
 fun MainMenuContent(innerPadding : PaddingValues){
     val context : Context = LocalContext.current
     val exampleName = "Bagus"
-    /*FirebaseApp.initializeApp(context)
+    FirebaseApp.initializeApp(context)
     val firebaseDatabase = FirebaseDatabase.getInstance()
-    val databaseReference = firebaseDatabase.getReference("Humtemp")*/
+    val databaseReference = firebaseDatabase.getReference("Humtemp")
 
     var humidity by remember{ mutableStateOf("") }
     var temperature by remember { mutableStateOf("") }
     var status by remember { mutableStateOf(false) }
     var outputStatus by remember { mutableStateOf("") }
     
-    /*FirebaseRealtimeDatabase().let {
+    FirebaseRealtimeDatabase().let {
         it.initDatabase()
         it.getHumTempDataList(databasePref = databaseReference).forEach { getData ->
             humidity = getData.humidity.toString()
@@ -139,7 +146,7 @@ fun MainMenuContent(innerPadding : PaddingValues){
             status = getData.status
             outputStatus = getData.output
         }
-    }*/
+    }
 
     LazyColumn(
         contentPadding = innerPadding,
@@ -210,13 +217,23 @@ fun DeviceCard(
     data2 : String = "22.6",
     data3 : String = "Normal",
     data1Icon : String = "%",
-    data2Icon : String = "°C"
+    data2Icon : String = "°C",
 ){
+
+    var expanded by remember { mutableStateOf(false) }
 
     Card(
         modifier = Modifier
-            .size(500.dp, 200.dp)
-            .padding(start = 10.dp, end = 10.dp),
+            .fillMaxWidth()
+            .padding(start = 10.dp, end = 10.dp)
+            .animateContentSize()
+            .height(if (expanded) 600.dp else 200.dp)
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null
+            ) {
+                expanded = !expanded
+            },
         shape = RoundedCornerShape(20.dp),
         elevation = CardDefaults.cardElevation(
             defaultElevation = 6.dp
@@ -318,11 +335,10 @@ fun DeviceCard(
 
 
 
-
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun MainMenuPreview() {
     MultSmartIoTTheme {
-        MainMenu()
+       DeviceCard()
     }
 }
