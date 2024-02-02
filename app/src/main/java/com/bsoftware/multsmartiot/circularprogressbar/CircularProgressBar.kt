@@ -54,6 +54,7 @@ class CircularProgressBar : ComponentActivity() {
 
 @Composable
 fun CircularProgressBarView(
+    modifier : Modifier = Modifier,
     number : Float = 70f,
     numberStyle : TextStyle = TextStyle(
         fontFamily = FontFamily.Default,
@@ -119,7 +120,7 @@ fun CircularProgressBarView(
 
         Row {
             Text(
-                text = (numberAnimation.value).toInt().toString(),
+                text = (numberAnimation.value).toString(),
                 style = numberStyle
             )
             Text(

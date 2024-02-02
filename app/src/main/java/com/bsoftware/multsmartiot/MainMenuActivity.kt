@@ -4,7 +4,11 @@ import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -22,6 +26,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -56,6 +61,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.bsoftware.multsmartiot.circularprogressbar.CircularProgressBarView
 import com.bsoftware.multsmartiot.firebase.FirebaseRealtimeDatabase
 import com.bsoftware.multsmartiot.ui.theme.MultSmartIoTTheme
 import com.google.firebase.FirebaseApp
@@ -221,18 +227,21 @@ fun DeviceCard(
 ){
 
     var expanded by remember { mutableStateOf(false) }
+    var visible by remember { mutableStateOf(false) }
+
 
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(start = 10.dp, end = 10.dp)
             .animateContentSize()
-            .height(if (expanded) 600.dp else 200.dp)
+            .height(if (expanded) 400.dp else 200.dp)
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null
             ) {
                 expanded = !expanded
+                visible = !visible
             },
         shape = RoundedCornerShape(20.dp),
         elevation = CardDefaults.cardElevation(
@@ -275,6 +284,42 @@ fun DeviceCard(
                     .padding(top = 5.dp)
             )
 
+            AnimatedVisibility(
+                visible = visible,
+                enter = slideInVertically(),
+                exit = fadeOut()
+            ) {
+                Row(
+                    modifier = Modifier
+                        .padding(top = 30.dp)
+                        .fillMaxWidth()
+                        .wrapContentWidth(Alignment.CenterHorizontally),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(50.dp)
+                ){
+                    // Humidity
+                    CircularProgressBarView(
+                        size = 100.dp,
+                        number = data1.toFloat(),
+                        indicator = "%",
+                        numberStyle = TextStyle(
+                            fontSize = 15.sp
+                        ),
+                        indicatorThickness = 20.dp
+                    )
+                    // temperature
+                    CircularProgressBarView(
+                        size = 100.dp,
+                        number = data2.toFloat(),
+                        indicator = "°C",
+                        numberStyle = TextStyle(
+                            fontSize = 15.sp
+                        ),
+                        indicatorThickness = 20.dp
+                    )
+                }
+            }
+
             Row(
                 verticalAlignment = Alignment.Bottom,
                 modifier = Modifier
@@ -289,7 +334,7 @@ fun DeviceCard(
                         )
                     )
                     Text(
-                        text = if(status) "$data1$data1Icon" else "-",
+                        text = if(status) "$data1$data1Icon" else "0.0",
                         style = TextStyle(
                             fontSize = 20.sp,
 
@@ -306,7 +351,7 @@ fun DeviceCard(
                         )
                     )
                     Text(
-                        text = if(status) "$data2$data2Icon" else "-",
+                        text = if(status) "$data2$data2Icon" else "0.0",
                         style = TextStyle(
                             fontSize = 20.sp
                         )
@@ -339,6 +384,6 @@ fun DeviceCard(
 @Composable
 fun MainMenuPreview() {
     MultSmartIoTTheme {
-       DeviceCard()
+       MainMenu()
     }
 }
