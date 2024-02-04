@@ -2,6 +2,7 @@ package com.bsoftware.multsmartiot
 
 import android.content.Context
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.AnimatedVisibility
@@ -62,6 +63,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bsoftware.multsmartiot.circularprogressbar.CircularProgressBarView
+import com.bsoftware.multsmartiot.firebase.FirebaseAuthentication
 import com.bsoftware.multsmartiot.firebase.FirebaseRealtimeDatabase
 import com.bsoftware.multsmartiot.ui.theme.MultSmartIoTTheme
 import com.google.firebase.FirebaseApp
@@ -134,7 +136,7 @@ fun MainMenu(){
 @Composable
 fun MainMenuContent(innerPadding : PaddingValues){
     val context : Context = LocalContext.current
-    val exampleName = "Bagus"
+    val exampleName = FirebaseAuthentication().getUsernameFromEmail()
     FirebaseApp.initializeApp(context)
     val firebaseDatabase = FirebaseDatabase.getInstance()
     val databaseReference = firebaseDatabase.getReference("Humtemp")
@@ -143,6 +145,7 @@ fun MainMenuContent(innerPadding : PaddingValues){
     var temperature by remember { mutableStateOf("") }
     var status by remember { mutableStateOf(false) }
     var outputStatus by remember { mutableStateOf("") }
+    var lampStatus by remember { mutableStateOf(false) }
     
     FirebaseRealtimeDatabase().let {
         it.initDatabase()
@@ -151,6 +154,7 @@ fun MainMenuContent(innerPadding : PaddingValues){
             temperature = getData.temperature.toString()
             status = getData.status
             outputStatus = getData.output
+            lampStatus = getData.lampstatus
         }
     }
 
@@ -226,8 +230,15 @@ fun DeviceCard(
     data2Icon : String = "°C",
 ){
 
+    // context
+    val context : Context = LocalContext.current
+
     var expanded by remember { mutableStateOf(false) }
     var visible by remember { mutableStateOf(false) }
+
+    var data1Value by remember { mutableStateOf(data1) }
+    var data2Value by remember { mutableStateOf(data2) }
+    var data3Value by remember { mutableStateOf(data3) }
 
 
     Card(
@@ -240,8 +251,22 @@ fun DeviceCard(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null
             ) {
-                expanded = !expanded
-                visible = !visible
+                // in click we check a value exception
+                try {
+                    // check a value if a data empty string we reload a state variable
+                    if (data1Value.equals("") && data2Value.equals("") && data3Value.equals("")) {
+                        data1Value = "0.0"
+                        data2Value = "0.0"
+                        data3Value = "0.0"
+                    }
+
+                    expanded = !expanded
+                    visible = !visible
+                } catch (E: Exception) {
+                    Toast
+                        .makeText(context, "Please wait for reload data", Toast.LENGTH_SHORT)
+                        .show()
+                }
             },
         shape = RoundedCornerShape(20.dp),
         elevation = CardDefaults.cardElevation(
@@ -300,8 +325,8 @@ fun DeviceCard(
                     // Humidity
                     CircularProgressBarView(
                         size = 100.dp,
-                        number = data1.toFloat(),
-                        indicator = "%",
+                        number = data1Value.toFloat(),
+                        indicator = data1Icon,
                         numberStyle = TextStyle(
                             fontSize = 15.sp
                         ),
@@ -310,8 +335,8 @@ fun DeviceCard(
                     // temperature
                     CircularProgressBarView(
                         size = 100.dp,
-                        number = data2.toFloat(),
-                        indicator = "°C",
+                        number = data2Value.toFloat(),
+                        indicator = data2Icon,
                         numberStyle = TextStyle(
                             fontSize = 15.sp
                         ),
@@ -319,6 +344,7 @@ fun DeviceCard(
                     )
                 }
             }
+
 
             Row(
                 verticalAlignment = Alignment.Bottom,
@@ -334,7 +360,7 @@ fun DeviceCard(
                         )
                     )
                     Text(
-                        text = if(status) "$data1$data1Icon" else "0.0",
+                        text = if(status) "$data1Value$data1Icon" else "0.0",
                         style = TextStyle(
                             fontSize = 20.sp,
 
@@ -351,7 +377,7 @@ fun DeviceCard(
                         )
                     )
                     Text(
-                        text = if(status) "$data2$data2Icon" else "0.0",
+                        text = if(status) "$data2Value$data2Icon" else "0.0",
                         style = TextStyle(
                             fontSize = 20.sp
                         )
@@ -367,7 +393,7 @@ fun DeviceCard(
                         )
                     )
                     Text(
-                        text = data3,
+                        text = data3Value,
                         style = TextStyle(
                             fontSize = 20.sp
                         )
@@ -384,6 +410,6 @@ fun DeviceCard(
 @Composable
 fun MainMenuPreview() {
     MultSmartIoTTheme {
-       MainMenu()
+       DeviceCard()
     }
 }

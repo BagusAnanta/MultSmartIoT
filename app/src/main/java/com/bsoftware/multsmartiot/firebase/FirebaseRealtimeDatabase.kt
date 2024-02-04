@@ -37,6 +37,7 @@ class FirebaseRealtimeDatabase {
                     Log.d("DataTemperature", dataHumTemp?.temperature.toString())
                     Log.d("DataStatus", dataHumTemp?.status.toString())
                     Log.d("DataOutput", dataHumTemp?.output.toString())
+                    Log.d("DataLampStat",dataHumTemp?.lampstatus.toString())
                     dataList.add(dataHumTemp!!)
                 }
 
@@ -48,5 +49,10 @@ class FirebaseRealtimeDatabase {
             databasePref.addValueEventListener(postListener)
         }
         return dataList
+    }
+
+    @Composable
+    fun SetlampStatus(databasePref: DatabaseReference,isOn : Boolean = false){
+        databasePref.child("Humtemp").child("lampstatus").setValue(isOn)
     }
 }
