@@ -51,8 +51,7 @@ class FirebaseRealtimeDatabase {
         return dataList
     }
 
-    @Composable
     fun SetlampStatus(databasePref: DatabaseReference,isOn : Boolean = false){
-        databasePref.child("Humtemp").child("lampstatus").setValue(isOn)
+        databasePref.child("lampstatus").setValue(isOn)
     }
 }

@@ -43,10 +43,13 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -63,11 +66,18 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bsoftware.multsmartiot.circularprogressbar.CircularProgressBarView
+import com.bsoftware.multsmartiot.datastore.LampStatusDataStore
 import com.bsoftware.multsmartiot.firebase.FirebaseAuthentication
 import com.bsoftware.multsmartiot.firebase.FirebaseRealtimeDatabase
 import com.bsoftware.multsmartiot.ui.theme.MultSmartIoTTheme
 import com.google.firebase.FirebaseApp
 import com.google.firebase.database.FirebaseDatabase
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 class MainMenuActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -136,7 +146,7 @@ fun MainMenu(){
 @Composable
 fun MainMenuContent(innerPadding : PaddingValues){
     val context : Context = LocalContext.current
-    val exampleName = FirebaseAuthentication().getUsernameFromEmail()
+    val exampleName = "Bagus Ananta"
     FirebaseApp.initializeApp(context)
     val firebaseDatabase = FirebaseDatabase.getInstance()
     val databaseReference = firebaseDatabase.getReference("Humtemp")
@@ -215,6 +225,7 @@ fun MainMenuContent(innerPadding : PaddingValues){
     }
 }
 
+@OptIn(DelicateCoroutinesApi::class)
 @Composable
 fun DeviceCard(
     deviceName : String = "Device Name",
@@ -233,12 +244,15 @@ fun DeviceCard(
     // context
     val context : Context = LocalContext.current
 
+    // lamp status datastore
+    val getLampStatus = LampStatusDataStore(context).getDataLampStatus.collectAsState(initial = false)
+
     var expanded by remember { mutableStateOf(false) }
     var visible by remember { mutableStateOf(false) }
+    val checker by remember { mutableStateOf(getLampStatus) }
 
-    var data1Value by remember { mutableStateOf(data1) }
-    var data2Value by remember { mutableStateOf(data2) }
-    var data3Value by remember { mutableStateOf(data3) }
+    val firebaseDatabase = FirebaseDatabase.getInstance()
+    val databaseReference = firebaseDatabase.getReference("Humtemp")
 
 
     Card(
@@ -246,20 +260,13 @@ fun DeviceCard(
             .fillMaxWidth()
             .padding(start = 10.dp, end = 10.dp)
             .animateContentSize()
-            .height(if (expanded) 400.dp else 200.dp)
+            .height(if (expanded) 460.dp else 210.dp)
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null
             ) {
                 // in click we check a value exception
                 try {
-                    // check a value if a data empty string we reload a state variable
-                    if (data1Value.equals("") && data2Value.equals("") && data3Value.equals("")) {
-                        data1Value = "0.0"
-                        data2Value = "0.0"
-                        data3Value = "0.0"
-                    }
-
                     expanded = !expanded
                     visible = !visible
                 } catch (E: Exception) {
@@ -325,7 +332,7 @@ fun DeviceCard(
                     // Humidity
                     CircularProgressBarView(
                         size = 100.dp,
-                        number = data1Value.toFloat(),
+                        number = data1.toFloat(),
                         indicator = data1Icon,
                         numberStyle = TextStyle(
                             fontSize = 15.sp
@@ -335,13 +342,62 @@ fun DeviceCard(
                     // temperature
                     CircularProgressBarView(
                         size = 100.dp,
-                        number = data2Value.toFloat(),
+                        number = data2.toFloat(),
                         indicator = data2Icon,
                         numberStyle = TextStyle(
                             fontSize = 15.sp
                         ),
                         indicatorThickness = 20.dp
                     )
+                }
+            }
+
+            Spacer(modifier = Modifier.padding(top = 50.dp))
+
+            AnimatedVisibility(
+                visible = visible,
+                enter = slideInVertically(),
+                exit = fadeOut()
+            ) {
+                Column(
+                    modifier = Modifier
+                        .padding(top = 10.dp, end = 10.dp, bottom = 10.dp)
+                ) {
+                    Text(
+                        text = "Control Panel",
+                        style = TextStyle(
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 20.sp
+                        )
+                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Switch(
+                            checked = checker.value,
+                            onCheckedChange = {
+                                if(it){
+                                   // if a button true we set a firebase and delete and update data in datastore
+                                    FirebaseRealtimeDatabase().SetlampStatus(databasePref = databaseReference,it)
+                                    GlobalScope.launch {
+                                        LampStatusDataStore(context).storeLampStatus(it)
+                                    }
+                                } else {
+                                    // if a onChange into a false
+                                    FirebaseRealtimeDatabase().SetlampStatus(databasePref = databaseReference,it)
+                                    GlobalScope.launch {
+                                        LampStatusDataStore(context).storeLampStatus(it)
+                                    }
+                                }
+                            }
+                        )
+
+                        Text(
+                            text = if(checker.value) "On Lamp" else "Off Lamp",
+                            modifier = Modifier
+                                .padding(start = 5.dp)
+                        )
+                    }
                 }
             }
 
@@ -360,7 +416,7 @@ fun DeviceCard(
                         )
                     )
                     Text(
-                        text = if(status) "$data1Value$data1Icon" else "0.0",
+                        text = if(status) "$data1$data1Icon" else "0.0",
                         style = TextStyle(
                             fontSize = 20.sp,
 
@@ -377,7 +433,7 @@ fun DeviceCard(
                         )
                     )
                     Text(
-                        text = if(status) "$data2Value$data2Icon" else "0.0",
+                        text = if(status) "$data2$data2Icon" else "0.0",
                         style = TextStyle(
                             fontSize = 20.sp
                         )
@@ -393,7 +449,7 @@ fun DeviceCard(
                         )
                     )
                     Text(
-                        text = data3Value,
+                        text = data3,
                         style = TextStyle(
                             fontSize = 20.sp
                         )
@@ -410,6 +466,6 @@ fun DeviceCard(
 @Composable
 fun MainMenuPreview() {
     MultSmartIoTTheme {
-       DeviceCard()
+       MainMenu()
     }
 }
